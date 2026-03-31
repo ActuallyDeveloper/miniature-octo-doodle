@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionId = await createSession(user.id);
-    await db.update(users).set({ status: "online", lastSeen: Date.now() }).where(eq(users.id, user.id));
+    await db.update(users).set({ status: "online", lastSeen: Date.now() }).where(eq(users.id, user.id)).run();
 
     const response = NextResponse.json({
       user: { id: user.id, username: user.username, displayName: user.displayName, email: user.email, avatar: user.avatar, bio: user.bio, status: "online" },

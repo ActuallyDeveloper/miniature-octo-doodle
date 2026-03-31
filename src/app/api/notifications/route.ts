@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { type, title, body, data } = await request.json();
-    await db.insert(notifications).values({ id: generateId(), userId: user.id, type, title, body, data: JSON.stringify(data || {}) });
+    await db.insert(notifications).values({ id: generateId(), userId: user.id, type, title, body, data: JSON.stringify(data || {}) }).run();
 
     return NextResponse.json({ success: true });
   } catch (error) {

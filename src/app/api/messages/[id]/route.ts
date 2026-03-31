@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!message) return NextResponse.json({ error: "Message not found" }, { status: 404 });
     if (message.senderId !== user.id) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-    await db.update(messages).set({ content, isEdited: true, updatedAt: Date.now() }).where(eq(messages.id, id));
+    await db.update(messages).set({ content, isEdited: true, updatedAt: Date.now() }).where(eq(messages.id, id)).run();
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -35,7 +35,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!message) return NextResponse.json({ error: "Message not found" }, { status: 404 });
     if (message.senderId !== user.id) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-    await db.delete(messages).where(eq(messages.id, id));
+    await db.delete(messages).where(eq(messages.id, id)).run();
 
     return NextResponse.json({ success: true });
   } catch (error) {

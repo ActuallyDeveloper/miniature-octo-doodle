@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       name: name || null,
       description: description || "",
       createdBy: user.id,
-    });
+    }).run();
 
     const allMembers = [user.id, ...(memberIds || [])];
     const uniqueMembers = [...new Set(allMembers)];
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         userId: memberId as string,
         role: memberId === user.id ? "owner" : "member",
       }))
-    );
+    ).run();
 
     return NextResponse.json({ chatId, success: true });
   } catch (error) {

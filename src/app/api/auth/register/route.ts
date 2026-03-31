@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       email,
       passwordHash,
       status: "online",
-    });
+    }).run();
 
     const sessionId = await createSession(id);
 

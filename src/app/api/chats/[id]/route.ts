@@ -45,8 +45,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       }
     }
 
-    await db.delete(chatMembers).where(eq(chatMembers.chatId, id));
-    await db.delete(chats).where(eq(chats.id, id));
+    await db.delete(chatMembers).where(eq(chatMembers.chatId, id)).run();
+    await db.delete(chats).where(eq(chats.id, id)).run();
 
     return NextResponse.json({ success: true });
   } catch (error) {

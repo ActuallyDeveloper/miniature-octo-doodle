@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const { contactId } = await request.json();
     if (!contactId) return NextResponse.json({ error: "contactId required" }, { status: 400 });
 
-    await db.insert(contacts).values({ id: generateId(), userId: user.id, contactId });
+    await db.insert(contacts).values({ id: generateId(), userId: user.id, contactId }).run();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Add contact error:", error);

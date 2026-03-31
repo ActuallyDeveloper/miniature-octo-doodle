@@ -116,9 +116,9 @@ export async function POST(request: NextRequest) {
       content,
       type: type || "text",
       replyToId: replyToId || null,
-    });
+    }).run();
 
-    await db.update(chats).set({ updatedAt: Date.now() }).where(eq(chats.id, chatId));
+    await db.update(chats).set({ updatedAt: Date.now() }).where(eq(chats.id, chatId)).run();
 
     const message = {
       id: messageId,

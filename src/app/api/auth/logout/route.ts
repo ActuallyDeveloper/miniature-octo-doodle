@@ -10,7 +10,7 @@ export async function POST() {
     const sessionId = cookieStore.get("session_id")?.value;
 
     if (sessionId) {
-      await db.delete(sessions).where(eq(sessions.id, sessionId));
+      await db.delete(sessions).where(eq(sessions.id, sessionId)).run();
       cookieStore.delete("session_id");
     }
 

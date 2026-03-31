@@ -34,7 +34,7 @@ export async function PATCH(request: NextRequest) {
     if (status) updates.status = status;
 
     if (Object.keys(updates).length > 0) {
-      await db.update(users).set(updates).where(eq(users.id, user.id));
+      await db.update(users).set(updates).where(eq(users.id, user.id)).run();
     }
 
     return NextResponse.json({ success: true });

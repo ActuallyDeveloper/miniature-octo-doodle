@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
       .get();
 
     if (existing) {
-      await db.delete(messageReactions).where(eq(messageReactions.id, existing.id));
+      await db.delete(messageReactions).where(eq(messageReactions.id, existing.id)).run();
       return NextResponse.json({ removed: true });
     }
 
-    await db.insert(messageReactions).values({ id: generateId(), messageId, userId: user.id, emoji });
+    await db.insert(messageReactions).values({ id: generateId(), messageId, userId: user.id, emoji }).run();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Reaction error:", error);
