@@ -13,8 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Next.js Template",
-  description: "A minimal Next.js starter template",
+  title: "Exotic - Next-Gen Messaging",
+  description: "Exotic is a production-ready messaging platform. 200x faster, 200x more powerful, 200x smarter. End-to-end encrypted, real-time messaging with channels, groups, voice & video calls.",
+  keywords: ["messaging", "chat", "encrypted", "real-time", "telegram clone"],
+  authors: [{ name: "Exotic Team" }],
 };
 
 export default function RootLayout({

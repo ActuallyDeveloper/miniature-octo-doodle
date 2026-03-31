@@ -1,48 +1,60 @@
-# Project Brief: Next.js Starter Template
+# Project Brief: Exotic - Next-Gen Messaging Platform
 
 ## Purpose
 
-This is a minimal Next.js starter template designed for AI-assisted development. It provides a clean foundation that can be extended to build any type of web application through interaction with an AI assistant.
+Exotic is a production-ready Telegram clone messaging platform built with Next.js 16. It delivers a complete messaging experience with real-time chat, channels, groups, voice/video calls, and end-to-end encryption indicators. Named "Exotic" for its powerful, fast, and smart architecture.
 
 ## Target Users
 
-- Developers wanting a clean Next.js starting point
-- Users building applications through AI-assisted coding
-- Teams needing a standardized, modern Next.js setup
+- Users seeking a modern, fast messaging platform
+- Teams needing group communication with channels
+- Anyone wanting a Telegram-like experience on the web
 
-## Core Use Case
+## Core Features
 
-Users describe what they want to build to an AI assistant, which then expands this template by:
-
-1. Adding components and pages as needed
-2. Installing additional dependencies
-3. Setting up databases, authentication, etc. using recipes
-4. Customizing styling and branding
+1. **Real-Time Messaging** - Direct messages, group chats, broadcast channels
+2. **End-to-End Encryption** - E2E encryption indicators on all chats
+3. **Voice & Video Calls** - In-app call UI with mute/camera controls
+4. **Channels & Groups** - Multi-user conversations with admin roles
+5. **File/Media Sharing** - Attachments, images, and media support
+6. **Message Reactions** - Emoji reactions on messages
+7. **Search** - Global search across users, messages, and chats
+8. **User Profiles** - Customizable profiles with status, bio, avatar
+9. **Notifications** - In-app notification system
+10. **Responsive Design** - Works on desktop and mobile
 
 ## Key Requirements
 
 ### Must Have
 
 - Modern Next.js 16 setup with App Router
-- TypeScript for type safety
+- TypeScript strict mode
 - Tailwind CSS 4 for styling
-- ESLint for code quality
-- Clean, minimal starting structure
+- SQLite database with Drizzle ORM
+- Authentication with session management
+- Real-time message polling
+- Dark theme Telegram-style UI
 - Bun as package manager
 
-### Nice to Have
+### Architecture Decisions
 
-- Recipe system for common additions (database, auth)
-- Memory bank for AI context persistence
-- Clear development guidelines
+- **Database**: SQLite via better-sqlite3 (production) / bun:sqlite (scripts)
+- **State Management**: Zustand for client-side chat state
+- **Auth**: Cookie-based sessions with bcrypt password hashing
+- **Real-time**: Polling-based message updates (3s interval)
+- **Styling**: Tailwind CSS 4 with custom Telegram-inspired theme
 
 ## Success Metrics
 
-- Clean, zero-error TypeScript setup
-- Passing lint and type checks
+- Zero TypeScript errors
+- Passing lint checks
+- Successful production build
+- Working authentication flow
+- Functional messaging between demo accounts
 
 ## Constraints
 
-- Minimal dependencies by default
-- Framework: Next.js 16 + React 19 + Tailwind CSS 4
-- Package manager: Bun
+- Single SQLite database file (exotic.db)
+- Bun as package manager
+- No external services required (self-contained)
+- Modern browsers only (ES2020+)

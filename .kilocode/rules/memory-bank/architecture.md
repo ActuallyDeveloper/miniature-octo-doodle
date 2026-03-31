@@ -1,120 +1,105 @@
-# System Patterns: Next.js Starter Template
+# System Patterns: Exotic - Telegram Clone
 
 ## Architecture Overview
 
 ```
 src/
-├── app/                    # Next.js App Router
+├── app/
 │   ├── layout.tsx          # Root layout + metadata
-│   ├── page.tsx            # Home page
-│   ├── globals.css         # Tailwind imports + global styles
-│   └── favicon.ico         # Site icon
-└── (expand as needed)
-    ├── components/         # React components (add when needed)
-    ├── lib/                # Utilities and helpers (add when needed)
-    └── db/                 # Database files (add via recipe)
+│   ├── page.tsx            # Main chat page (client component)
+│   ├── globals.css         # Tailwind + custom Telegram theme
+│   ├── auth/
+│   │   ├── login/page.tsx  # Login page
+│   │   └── register/page.tsx # Register page
+│   └── api/
+│       ├── auth/           # Auth endpoints (login, register, me, logout)
+│       ├── chats/          # Chat CRUD
+│       ├── messages/       # Message CRUD
+│       ├── reactions/      # Emoji reactions
+│       ├── search/         # Global search
+│       ├── users/          # User management
+│       ├── contacts/       # Contact list
+│       └── notifications/  # Notifications
+├── components/
+│   ├── ui/                 # Reusable UI primitives
+│   ├── chat/               # ChatSidebar, ChatWindow
+│   └── modals/             # All modal dialogs
+├── db/                     # Database layer
+├── lib/                    # Utilities and auth
+└── store/                  # Zustand state
 ```
 
 ## Key Design Patterns
 
-### 1. App Router Pattern
+### 1. App Router with API Routes
 
-Uses Next.js App Router with file-based routing:
+All server-side logic lives in API routes. The main page is a client component that communicates with API routes via fetch.
+
+### 2. Client-Side State (Zustand)
+
+The `useChatStore` manages all client state: current user, chats, active chat, messages, modals, search, typing indicators. Components subscribe to relevant slices.
+
+### 3. Optimistic Updates
+
+Messages are added to the store immediately (optimistic) before the API response. The fetch then confirms or corrects the data.
+
+### 4. Polling for Real-Time
+
+Messages and chats are polled at 3-second intervals. This provides near-real-time updates without WebSocket complexity.
+
+### 5. Component Organization
+
 ```
-src/app/
-├── page.tsx           # Route: /
-├── about/page.tsx     # Route: /about
-├── blog/
-│   ├── page.tsx       # Route: /blog
-│   └── [slug]/page.tsx # Route: /blog/:slug
-└── api/
-    └── route.ts       # API Route: /api
-```
-
-### 2. Component Organization Pattern (When Expanding)
-
-```
-src/components/
-├── ui/                # Reusable UI components (Button, Card, etc.)
-├── layout/            # Layout components (Header, Footer)
-├── sections/          # Page sections (Hero, Features, etc.)
-└── forms/             # Form components
-```
-
-### 3. Server Components by Default
-
-All components are Server Components unless marked with `"use client"`:
-```tsx
-// Server Component (default) - can fetch data, access DB
-export default function Page() {
-  return <div>Server rendered</div>;
-}
-
-// Client Component - for interactivity
-"use client";
-export default function Counter() {
-  const [count, setCount] = useState(0);
-  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
-}
+components/
+├── ui/           # Atomic, reusable (Avatar, Button, Input, Modal)
+├── chat/         # Feature-specific (ChatSidebar, ChatWindow)
+└── modals/       # Modal dialogs (NewChat, Profile, Settings, etc.)
 ```
 
-### 4. Layout Pattern
+### 6. Dual SQLite Drivers
 
-Layouts wrap pages and can be nested:
-```tsx
-// src/app/layout.tsx - Root layout
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
+- `bun:sqlite` for CLI scripts (migrate, seed) - runs with `bun run`
+- `better-sqlite3` for app code - compatible with Node.js (Next.js build)
 
-// src/app/dashboard/layout.tsx - Nested layout
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex">
-      <Sidebar />
-      <main>{children}</main>
-    </div>
-  );
-}
-```
+### 7. Dark Theme Design
 
-## Styling Conventions
-
-### Tailwind CSS Usage
-- Utility classes directly on elements
-- Component composition for repeated patterns
-- Responsive: `sm:`, `md:`, `lg:`, `xl:`
-
-### Common Patterns
-```tsx
-// Container
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-// Responsive grid
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-// Flexbox centering
-<div className="flex items-center justify-center">
-```
-
-## File Naming Conventions
-
-- Components: PascalCase (`Button.tsx`, `Header.tsx`)
-- Utilities: camelCase (`utils.ts`, `helpers.ts`)
-- Pages/Routes: lowercase (`page.tsx`, `layout.tsx`)
-- Directories: kebab-case (`api-routes/`) or lowercase (`components/`)
+Custom Tailwind theme with Telegram-inspired colors:
+- Background: #0e1621 (primary), #17212b (secondary), #232e3c (tertiary)
+- Accent: #2b5278 (blue), #4eae53 (green)
+- Text: #f5f5f5 (primary), #aaaaaa (secondary), #6c7883 (muted)
 
 ## State Management
 
-For simple needs:
-- `useState` for local component state
-- `useContext` for shared state
-- Server Components for data fetching
+### Zustand Store Structure
 
-For complex needs (add when necessary):
-- Zustand for client state
-- React Query for server state
+```typescript
+{
+  currentUser: User | null
+  chats: Chat[]
+  activeChat: Chat | null
+  messages: Message[]
+  searchQuery: string
+  sidebarOpen: boolean
+  typingUsers: Record<string, string[]>
+  showProfile: boolean
+  showSettings: boolean
+  showNewChat: boolean
+  showNewGroup: boolean
+  showNewChannel: boolean
+  showSearch: boolean
+}
+```
+
+### Data Flow
+
+1. User action → Store update (optimistic)
+2. API call → Server processes
+3. Response → Store update (confirm)
+4. Polling → Background store sync
+
+## File Naming Conventions
+
+- Components: PascalCase (`ChatSidebar.tsx`, `Avatar.tsx`)
+- Utilities: camelCase (`utils.ts`, `auth.ts`)
+- Pages/Routes: lowercase (`page.tsx`, `layout.tsx`, `route.ts`)
+- Directories: kebab-case (`api/`, `auth/`)

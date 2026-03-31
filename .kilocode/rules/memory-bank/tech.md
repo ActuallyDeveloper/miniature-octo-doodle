@@ -1,31 +1,40 @@
-# Technical Context: Next.js Starter Template
+# Technical Context: Exotic - Telegram Clone
 
 ## Technology Stack
 
-| Technology   | Version | Purpose                         |
-| ------------ | ------- | ------------------------------- |
-| Next.js      | 16.x    | React framework with App Router |
-| React        | 19.x    | UI library                      |
-| TypeScript   | 5.9.x   | Type-safe JavaScript            |
-| Tailwind CSS | 4.x     | Utility-first CSS               |
-| Bun          | Latest  | Package manager & runtime       |
+| Technology      | Version  | Purpose                              |
+| --------------- | -------- | ------------------------------------ |
+| Next.js         | 16.x     | React framework with App Router      |
+| React           | 19.x     | UI library                           |
+| TypeScript      | 5.9.x    | Type-safe JavaScript                 |
+| Tailwind CSS    | 4.x      | Utility-first CSS with custom theme  |
+| Bun             | Latest   | Package manager & runtime            |
+| Drizzle ORM     | 0.45.x   | Type-safe SQLite ORM                 |
+| better-sqlite3  | 12.x     | SQLite driver (production builds)    |
+| bun:sqlite      | Built-in | SQLite driver (scripts/migrations)   |
+| Zustand         | 5.x      | Client-side state management         |
+| bcryptjs        | 3.x      | Password hashing                     |
+| uuid            | 13.x     | ID generation                        |
+| lucide-react    | 1.7.x    | Icon library                         |
 
 ## Development Environment
 
 ### Prerequisites
 
 - Bun installed (`curl -fsSL https://bun.sh/install | bash`)
-- Node.js 20+ (for compatibility)
+- Node.js 20+ (for Next.js build compatibility)
 
 ### Commands
 
 ```bash
-bun install        # Install dependencies
-bun dev            # Start dev server (http://localhost:3000)
-bun build          # Production build
-bun start          # Start production server
-bun lint           # Run ESLint
-bun typecheck      # Run TypeScript type checking
+bun install          # Install dependencies
+bun dev              # Start dev server (http://localhost:3000)
+bun run build        # Production build
+bun start            # Start production server
+bun lint             # Run ESLint
+bun typecheck        # Run TypeScript type checking
+bun run db:migrate   # Run SQLite migrations (uses bun:sqlite)
+bun run db:seed      # Seed demo data (uses bun:sqlite)
 ```
 
 ## Project Configuration
@@ -33,111 +42,86 @@ bun typecheck      # Run TypeScript type checking
 ### Next.js Config (`next.config.ts`)
 
 - App Router enabled
-- Default settings for flexibility
+- Default settings
 
 ### TypeScript Config (`tsconfig.json`)
 
 - Strict mode enabled
 - Path alias: `@/*` → `src/*`
-- Target: ESNext
+- Bun types included
+- Target: ES2017
 
 ### Tailwind CSS 4 (`postcss.config.mjs`)
 
 - Uses `@tailwindcss/postcss` plugin
-- CSS-first configuration (v4 style)
+- CSS-first configuration with custom theme tokens
+- Dark theme colors: #0e1621, #17212b, #232e3c, #2b5278
 
 ### ESLint (`eslint.config.mjs`)
 
 - Uses `eslint-config-next`
 - Flat config format
 
-## Key Dependencies
-
-### Production Dependencies
-
-```json
-{
-  "next": "^16.1.3", // Framework
-  "react": "^19.2.3", // UI library
-  "react-dom": "^19.2.3" // React DOM
-}
-```
-
-### Dev Dependencies
-
-```json
-{
-  "typescript": "^5.9.3",
-  "@types/node": "^24.10.2",
-  "@types/react": "^19.2.7",
-  "@types/react-dom": "^19.2.3",
-  "@tailwindcss/postcss": "^4.1.17",
-  "tailwindcss": "^4.1.17",
-  "eslint": "^9.39.1",
-  "eslint-config-next": "^16.0.0"
-}
-```
-
 ## File Structure
 
 ```
-/
-├── .gitignore              # Git ignore rules
-├── package.json            # Dependencies and scripts
-├── bun.lock                # Bun lockfile
-├── next.config.ts          # Next.js configuration
-├── tsconfig.json           # TypeScript configuration
-├── postcss.config.mjs      # PostCSS (Tailwind) config
-├── eslint.config.mjs       # ESLint configuration
-├── public/                 # Static assets
-│   └── .gitkeep
-└── src/                    # Source code
-    └── app/                # Next.js App Router
-        ├── layout.tsx      # Root layout
-        ├── page.tsx        # Home page
-        ├── globals.css     # Global styles
-        └── favicon.ico     # Site icon
+src/
+├── app/
+│   ├── layout.tsx                    # Root layout
+│   ├── page.tsx                      # Home (chat app)
+│   ├── globals.css                   # Tailwind + custom theme
+│   ├── auth/
+│   │   ├── login/page.tsx            # Login page
+│   │   └── register/page.tsx         # Register page
+│   └── api/
+│       ├── auth/                     # Auth endpoints
+│       ├── chats/                    # Chat CRUD
+│       ├── messages/                 # Message CRUD
+│       ├── reactions/                # Emoji reactions
+│       ├── search/                   # Global search
+│       ├── users/                    # User management
+│       ├── contacts/                 # Contact list
+│       └── notifications/            # Notifications
+├── components/
+│   ├── ui/                           # Reusable UI (Avatar, Button, Input, Modal, etc.)
+│   ├── chat/                         # ChatSidebar, ChatWindow
+│   └── modals/                       # NewChat, NewGroup, NewChannel, Profile, Settings, Search
+├── db/
+│   ├── schema.ts                     # Drizzle schema (9 tables)
+│   ├── index.ts                      # Database client (better-sqlite3)
+│   └── migrate.ts                    # SQL migrations (bun:sqlite)
+├── lib/
+│   ├── auth.ts                       # Auth utilities
+│   ├── utils.ts                      # General utilities
+│   ├── db.ts                         # Re-export convenience
+│   └── seed.ts                       # Demo data seeder
+└── store/
+    └── chat.ts                       # Zustand state store
 ```
 
 ## Technical Constraints
 
-### Starting Point
+### Database
 
-- Minimal structure - expand as needed
-- No database by default (use recipe to add)
-- No authentication by default (add when needed)
+- SQLite file-based database (exotic.db)
+- Migrations run with bun:sqlite (scripts)
+- App code uses better-sqlite3 (Node.js compatible for Next.js build)
+- WAL mode for concurrent reads
+- Foreign keys enabled
+
+### Real-time
+
+- Polling-based updates (3-second interval)
+- Optimistic UI updates for sent messages
+- No WebSocket (keeping it simple and production-stable)
+
+### Authentication
+
+- Cookie-based sessions (7-day expiry)
+- bcrypt password hashing (10 rounds)
+- Server-side session validation
 
 ### Browser Support
 
 - Modern browsers (ES2020+)
 - No IE11 support
-
-## Performance Considerations
-
-### Image Optimization
-
-- Use Next.js `Image` component for optimization
-- Place images in `public/` directory
-
-### Bundle Size
-
-- Tree-shaking enabled by default
-- Tailwind CSS purges unused styles
-
-### Core Web Vitals
-
-- Server Components reduce client JavaScript
-- Streaming and Suspense for better UX
-
-## Deployment
-
-### Build Output
-
-- Server-rendered pages by default
-- Can be configured for static export
-
-### Environment Variables
-
-- None required for base template
-- Add as needed for features
-- Use `.env.local` for local development

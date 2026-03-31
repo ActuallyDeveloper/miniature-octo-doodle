@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import { Database } from "bun:sqlite";
 import path from "path";
 
 const dbPath = path.join(process.cwd(), "exotic.db");

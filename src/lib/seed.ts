@@ -1,70 +1,81 @@
-import { db } from "@/db";
-import { users, chats, chatMembers, messages } from "@/db/schema";
-import { hashPassword } from "@/lib/auth";
-import { generateId } from "@/lib/utils";
+import { Database } from "bun:sqlite";
+import { hash } from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
+
+const dbPath = path.join(process.cwd(), "exotic.db");
+const sqlite = new Database(dbPath);
 
 async function seed() {
-  const existingUsers = await db.select().from(users).limit(1);
-  if (existingUsers.length > 0) {
+  const existing = sqlite.query("SELECT id FROM users LIMIT 1").get();
+  if (existing) {
     console.log("Database already seeded");
     return;
   }
 
-  const passwordHash = await hashPassword("password123");
+  const passwordHash = await hash("password123", 10);
 
-  const userIds = [generateId(), generateId(), generateId(), generateId(), generateId()];
-  
-  await db.insert(users).values([
-    { id: userIds[0], username: "john_doe", displayName: "John Doe", email: "john@exotic.com", passwordHash, status: "online", bio: "Building Exotic - the future of messaging" },
-    { id: userIds[1], username: "jane_smith", displayName: "Jane Smith", email: "jane@exotic.com", passwordHash, status: "online", bio: "Designer & Creative Director" },
-    { id: userIds[2], username: "alex_wilson", displayName: "Alex Wilson", email: "alex@exotic.com", passwordHash, status: "away", bio: "Full-stack developer" },
-    { id: userIds[3], username: "sarah_jones", displayName: "Sarah Jones", email: "sarah@exotic.com", passwordHash, status: "offline", bio: "Product Manager at Exotic" },
-    { id: userIds[4], username: "mike_brown", displayName: "Mike Brown", email: "mike@exotic.com", passwordHash, status: "online", bio: "DevOps engineer" },
-  ]);
-
-  const chatId1 = generateId();
-  const chatId2 = generateId();
-  const groupId = generateId();
-  const channelId = generateId();
-
-  await db.insert(chats).values([
-    { id: chatId1, type: "direct", createdBy: userIds[0] },
-    { id: chatId2, type: "direct", createdBy: userIds[0] },
-    { id: groupId, type: "group", name: "Exotic Team", description: "Main team chat for Exotic development", createdBy: userIds[0] },
-    { id: channelId, type: "channel", name: "Exotic Announcements", description: "Official Exotic announcements channel", createdBy: userIds[0] },
-  ]);
-
-  await db.insert(chatMembers).values([
-    { id: generateId(), chatId: chatId1, userId: userIds[0] },
-    { id: generateId(), chatId: chatId1, userId: userIds[1] },
-    { id: generateId(), chatId: chatId2, userId: userIds[0] },
-    { id: generateId(), chatId: chatId2, userId: userIds[2] },
-    { id: generateId(), chatId: groupId, userId: userIds[0], role: "owner" },
-    { id: generateId(), chatId: groupId, userId: userIds[1], role: "admin" },
-    { id: generateId(), chatId: groupId, userId: userIds[2] },
-    { id: generateId(), chatId: groupId, userId: userIds[3] },
-    { id: generateId(), chatId: groupId, userId: userIds[4] },
-    { id: generateId(), chatId: channelId, userId: userIds[0], role: "owner" },
-    { id: generateId(), chatId: channelId, userId: userIds[1] },
-    { id: generateId(), chatId: channelId, userId: userIds[2] },
-    { id: generateId(), chatId: channelId, userId: userIds[3] },
-    { id: generateId(), chatId: channelId, userId: userIds[4] },
-  ]);
-
+  const userIds = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
   const now = Date.now();
-  await db.insert(messages).values([
-    { id: generateId(), chatId: chatId1, senderId: userIds[1], content: "Hey! Have you seen the new Exotic features?", type: "text", createdAt: new Date(now - 3600000) },
-    { id: generateId(), chatId: chatId1, senderId: userIds[0], content: "Yes! The real-time messaging is incredible. 200x faster than anything else!", type: "text", createdAt: new Date(now - 3500000) },
-    { id: generateId(), chatId: chatId1, senderId: userIds[1], content: "I love the E2E encryption too. So secure! ", type: "text", createdAt: new Date(now - 3400000) },
-    { id: generateId(), chatId: chatId1, senderId: userIds[0], content: "Wait until you see the voice and video call features. Production ready from day one.", type: "text", createdAt: new Date(now - 3300000) },
-    { id: generateId(), chatId: chatId2, senderId: userIds[0], content: "Alex, are you joining the standup?", type: "text", createdAt: new Date(now - 7200000) },
-    { id: generateId(), chatId: chatId2, senderId: userIds[2], content: "On my way! Just finishing up the WebSocket implementation.", type: "text", createdAt: new Date(now - 7100000) },
-    { id: generateId(), chatId: groupId, senderId: userIds[0], content: "Welcome to the Exotic team chat! 🚀", type: "text", createdAt: new Date(now - 86400000) },
-    { id: generateId(), chatId: groupId, senderId: userIds[1], content: "Excited to be here! The UI design is coming along great.", type: "text", createdAt: new Date(now - 85000000) },
-    { id: generateId(), chatId: groupId, senderId: userIds[3], content: "Product roadmap is ready for review. Check the pinned message.", type: "text", createdAt: new Date(now - 80000000) },
-    { id: generateId(), chatId: channelId, senderId: userIds[0], content: "📢 Exotic v1.0 is now live! The fastest, most secure messaging platform ever built. 200x faster, 200x more powerful, 200x smarter.", type: "text", createdAt: new Date(now - 172800000) },
-    { id: generateId(), chatId: channelId, senderId: userIds[0], content: "🔔 New feature: End-to-end encryption is now enabled for all chats by default.", type: "text", createdAt: new Date(now - 86400000) },
-  ]);
+
+  const insertUser = sqlite.prepare(
+    "INSERT INTO users (id, username, display_name, email, password_hash, status, bio, created_at, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  );
+
+  insertUser.run(userIds[0], "john_doe", "John Doe", "john@exotic.com", passwordHash, "online", "Building Exotic - the future of messaging", now, now);
+  insertUser.run(userIds[1], "jane_smith", "Jane Smith", "jane@exotic.com", passwordHash, "online", "Designer & Creative Director", now, now);
+  insertUser.run(userIds[2], "alex_wilson", "Alex Wilson", "alex@exotic.com", passwordHash, "away", "Full-stack developer", now, now);
+  insertUser.run(userIds[3], "sarah_jones", "Sarah Jones", "sarah@exotic.com", passwordHash, "offline", "Product Manager at Exotic", now, now);
+  insertUser.run(userIds[4], "mike_brown", "Mike Brown", "mike@exotic.com", passwordHash, "online", "DevOps engineer", now, now);
+
+  const chatId1 = uuidv4();
+  const chatId2 = uuidv4();
+  const groupId = uuidv4();
+  const channelId = uuidv4();
+
+  const insertChat = sqlite.prepare(
+    "INSERT INTO chats (id, type, name, description, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  );
+
+  insertChat.run(chatId1, "direct", null, "", userIds[0], now, now);
+  insertChat.run(chatId2, "direct", null, "", userIds[0], now, now);
+  insertChat.run(groupId, "group", "Exotic Team", "Main team chat for Exotic development", userIds[0], now, now);
+  insertChat.run(channelId, "channel", "Exotic Announcements", "Official Exotic announcements channel", userIds[0], now, now);
+
+  const insertMember = sqlite.prepare(
+    "INSERT INTO chat_members (id, chat_id, user_id, role, joined_at) VALUES (?, ?, ?, ?, ?)"
+  );
+
+  insertMember.run(uuidv4(), chatId1, userIds[0], "member", now);
+  insertMember.run(uuidv4(), chatId1, userIds[1], "member", now);
+  insertMember.run(uuidv4(), chatId2, userIds[0], "member", now);
+  insertMember.run(uuidv4(), chatId2, userIds[2], "member", now);
+  insertMember.run(uuidv4(), groupId, userIds[0], "owner", now);
+  insertMember.run(uuidv4(), groupId, userIds[1], "admin", now);
+  insertMember.run(uuidv4(), groupId, userIds[2], "member", now);
+  insertMember.run(uuidv4(), groupId, userIds[3], "member", now);
+  insertMember.run(uuidv4(), groupId, userIds[4], "member", now);
+  insertMember.run(uuidv4(), channelId, userIds[0], "owner", now);
+  insertMember.run(uuidv4(), channelId, userIds[1], "member", now);
+  insertMember.run(uuidv4(), channelId, userIds[2], "member", now);
+  insertMember.run(uuidv4(), channelId, userIds[3], "member", now);
+  insertMember.run(uuidv4(), channelId, userIds[4], "member", now);
+
+  const insertMsg = sqlite.prepare(
+    "INSERT INTO messages (id, chat_id, sender_id, content, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  );
+
+  insertMsg.run(uuidv4(), chatId1, userIds[1], "Hey! Have you seen the new Exotic features?", "text", now - 3600000, now - 3600000);
+  insertMsg.run(uuidv4(), chatId1, userIds[0], "Yes! The real-time messaging is incredible. 200x faster than anything else!", "text", now - 3500000, now - 3500000);
+  insertMsg.run(uuidv4(), chatId1, userIds[1], "I love the E2E encryption too. So secure!", "text", now - 3400000, now - 3400000);
+  insertMsg.run(uuidv4(), chatId1, userIds[0], "Wait until you see the voice and video call features. Production ready from day one.", "text", now - 3300000, now - 3300000);
+  insertMsg.run(uuidv4(), chatId2, userIds[0], "Alex, are you joining the standup?", "text", now - 7200000, now - 7200000);
+  insertMsg.run(uuidv4(), chatId2, userIds[2], "On my way! Just finishing up the WebSocket implementation.", "text", now - 7100000, now - 7100000);
+  insertMsg.run(uuidv4(), groupId, userIds[0], "Welcome to the Exotic team chat!", "text", now - 86400000, now - 86400000);
+  insertMsg.run(uuidv4(), groupId, userIds[1], "Excited to be here! The UI design is coming along great.", "text", now - 85000000, now - 85000000);
+  insertMsg.run(uuidv4(), groupId, userIds[3], "Product roadmap is ready for review. Check the pinned message.", "text", now - 80000000, now - 80000000);
+  insertMsg.run(uuidv4(), channelId, userIds[0], "Exotic v1.0 is now live! The fastest, most secure messaging platform ever built. 200x faster, 200x more powerful, 200x smarter.", "text", now - 172800000, now - 172800000);
+  insertMsg.run(uuidv4(), channelId, userIds[0], "New feature: End-to-end encryption is now enabled for all chats by default.", "text", now - 86400000, now - 86400000);
 
   console.log("Database seeded successfully!");
   console.log("Demo accounts:");

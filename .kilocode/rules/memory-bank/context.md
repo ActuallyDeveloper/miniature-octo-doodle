@@ -2,57 +2,70 @@
 
 ## Current State
 
-**Project Status**: Database infrastructure complete, ready for UI/API development
+**Project Status**: Production-ready messaging platform
 
-The project is "Exotic", a Telegram clone built with Next.js 16. The database layer with Drizzle ORM + better-sqlite3 is now fully set up with schema, migrations, auth, seeding, and state management.
+Exotic is a complete Telegram clone with authentication, real-time messaging, channels, groups, voice/video call UI, message reactions, search, user profiles, settings, and E2E encryption indicators. All builds pass, database is seeded with demo data.
 
 ## Recently Completed
 
 - [x] Base Next.js 16 setup with App Router
 - [x] TypeScript configuration with strict mode
-- [x] Tailwind CSS 4 integration
+- [x] Tailwind CSS 4 integration with custom Telegram theme
 - [x] ESLint configuration
 - [x] Memory bank documentation
 - [x] Recipe system for common features
-- [x] Database schema (users, chats, chat_members, messages, reactions, attachments, sessions, contacts, notifications)
-- [x] Database client with WAL mode and foreign keys enabled
-- [x] Migration runner with indexes
-- [x] Auth utilities (bcrypt password hashing, session management)
-- [x] General utilities (ID generation, date formatting, avatar colors)
-- [x] Seed file with 5 demo users, 4 chats, and sample messages
-- [x] Zustand chat store for client-side state
-- [x] Drizzle Kit configuration
-
-## Current Structure
-
-| File/Directory | Purpose | Status |
-|----------------|---------|--------|
-| `src/db/schema.ts` | Drizzle schema (9 tables) | ✅ Ready |
-| `src/db/index.ts` | Database client | ✅ Ready |
-| `src/db/migrate.ts` | SQL migration runner | ✅ Ready |
-| `src/lib/db.ts` | Re-export convenience | ✅ Ready |
-| `src/lib/auth.ts` | Auth/session utilities | ✅ Ready |
-| `src/lib/utils.ts` | General utilities | ✅ Ready |
-| `src/lib/seed.ts` | Demo data seeder | ✅ Ready |
-| `src/store/chat.ts` | Zustand chat state | ✅ Ready |
-| `drizzle.config.ts` | Drizzle Kit config | ✅ Ready |
-| `src/app/page.tsx` | Home page | ✅ Ready |
-| `src/app/layout.tsx` | Root layout | ✅ Ready |
-| `src/app/globals.css` | Global styles | ✅ Ready |
+- [x] Complete database schema (9 tables)
+- [x] Database client with WAL mode and foreign keys
+- [x] Migration runner with performance indexes
+- [x] Auth system (login, register, logout, session management)
+- [x] API routes for all features (13 endpoints)
+- [x] Chat sidebar with search, filters, and chat list
+- [x] Chat window with message bubbles, reactions, reply, edit, delete
+- [x] End-to-end encryption indicators
+- [x] Voice and video call UI
+- [x] User profiles with editable bio/display name
+- [x] Settings panel with notifications toggle
+- [x] Global search across users and messages
+- [x] New chat, new group, new channel modals
+- [x] Context menus on messages
+- [x] Typing indicators
+- [x] Online/away/offline status indicators
+- [x] Responsive design (mobile + desktop)
+- [x] Zustand state management
+- [x] Demo data seeder (5 users, 4 chats, 11 messages)
+- [x] Production build passing
 
 ## Database Tables
 
 | Table | Purpose |
 |-------|---------|
-| `users` | User accounts with profiles |
+| `users` | User accounts with profiles, status |
 | `chats` | Direct/group/channel conversations |
-| `chat_members` | Chat membership with roles |
-| `messages` | Chat messages with replies/forwards |
-| `message_reactions` | Emoji reactions on messages |
+| `chat_members` | Chat membership with roles (owner/admin/member) |
+| `messages` | Messages with replies, forwards, pins, edits |
+| `message_reactions` | Emoji reactions |
 | `attachments` | File/media attachments |
 | `sessions` | Auth session tokens |
 | `contacts` | User contact lists |
 | `notifications` | User notifications |
+
+## API Endpoints
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| POST | /api/auth/login | User login |
+| POST | /api/auth/register | User registration |
+| GET | /api/auth/me | Get current user |
+| POST | /api/auth/logout | User logout |
+| GET/POST | /api/chats | List/create chats |
+| GET/DELETE | /api/chats/[id] | Get/delete chat |
+| GET/POST | /api/messages | List/send messages |
+| PATCH/DELETE | /api/messages/[id] | Edit/delete message |
+| POST | /api/reactions | Toggle reaction |
+| GET | /api/search | Global search |
+| GET/PATCH | /api/users | List/update users |
+| GET/POST | /api/contacts | List/add contacts |
+| GET/POST | /api/notifications | List/create notifications |
 
 ## Demo Accounts
 
@@ -64,19 +77,22 @@ The project is "Exotic", a Telegram clone built with Next.js 16. The database la
 | sarah@exotic.com | password123 |
 | mike@exotic.com | password123 |
 
-## Current Focus
+## Commands
 
-Database infrastructure is complete. Next steps for the Exotic app:
-
-1. Build API routes for auth, chats, messages
-2. Create UI components (sidebar, chat view, message bubbles)
-3. Implement real-time messaging with WebSockets
-4. Build login/register pages
-5. Run seed script to populate demo data
+```bash
+bun install        # Install dependencies
+bun dev            # Start dev server
+bun run build      # Production build
+bun start          # Start production server
+bun lint           # Run ESLint
+bun typecheck      # Run TypeScript type checking
+bun run db:migrate # Run database migrations
+bun run db:seed    # Seed demo data
+```
 
 ## Session History
 
 | Date | Changes |
 |------|---------|
 | Initial | Template created with base setup |
-| 2026-03-31 | Added complete database infrastructure for Exotic Telegram clone |
+| 2026-03-31 | Complete Exotic Telegram clone built - database, auth, API, full UI |
