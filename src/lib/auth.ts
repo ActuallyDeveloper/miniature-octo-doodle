@@ -17,7 +17,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 export async function createSession(userId: string): Promise<string> {
   const sessionId = uuidv4();
-  const expiresAt = new Date(Date.now() + SESSION_DURATION);
+  const expiresAt = Date.now() + SESSION_DURATION;
   await db.insert(sessions).values({ id: sessionId, userId, expiresAt });
   return sessionId;
 }
@@ -29,7 +29,7 @@ export async function getSession() {
 
   const session = await db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
   if (!session) return null;
-  if (new Date(session.expiresAt) < new Date()) {
+  if (session.expiresAt < Date.now()) {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
     return null;
   }

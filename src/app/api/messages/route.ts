@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         })
         .from(messages)
         .leftJoin(users, eq(messages.senderId, users.id))
-        .where(and(eq(messages.chatId, chatId), lt(messages.createdAt, new Date(before))))
+        .where(and(eq(messages.chatId, chatId), lt(messages.createdAt, Number(before))))
         .orderBy(desc(messages.createdAt))
         .limit(limit);
     }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       replyToId: replyToId || null,
     });
 
-    await db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chatId));
+    await db.update(chats).set({ updatedAt: Date.now() }).where(eq(chats.id, chatId));
 
     const message = {
       id: messageId,
@@ -130,8 +130,8 @@ export async function POST(request: NextRequest) {
       forwardedFrom: null,
       isPinned: false,
       isEdited: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
       sender: { id: user.id, displayName: user.displayName, username: user.username, avatar: user.avatar },
       reactions: [],
       attachments: [],

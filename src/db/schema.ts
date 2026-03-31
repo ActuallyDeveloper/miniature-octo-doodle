@@ -10,8 +10,8 @@ export const users = sqliteTable("users", {
   bio: text("bio").default(""),
   phoneNumber: text("phone_number"),
   status: text("status").default("offline"),
-  lastSeen: integer("last_seen", { mode: "timestamp" }).$defaultFn(() => new Date()),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  lastSeen: integer("last_seen").$defaultFn(() => Date.now()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
 });
 
 export const chats = sqliteTable("chats", {
@@ -21,8 +21,8 @@ export const chats = sqliteTable("chats", {
   avatar: text("avatar"),
   description: text("description").default(""),
   createdBy: text("created_by").references(() => users.id),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
+  updatedAt: integer("updated_at").$defaultFn(() => Date.now()),
 });
 
 export const chatMembers = sqliteTable("chat_members", {
@@ -31,7 +31,7 @@ export const chatMembers = sqliteTable("chat_members", {
   userId: text("user_id").notNull().references(() => users.id),
   role: text("role").default("member"),
   nickname: text("nickname"),
-  joinedAt: integer("joined_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  joinedAt: integer("joined_at").$defaultFn(() => Date.now()),
   muted: integer("muted", { mode: "boolean" }).default(false),
 });
 
@@ -45,8 +45,8 @@ export const messages = sqliteTable("messages", {
   forwardedFrom: text("forwarded_from"),
   isPinned: integer("is_pinned", { mode: "boolean" }).default(false),
   isEdited: integer("is_edited", { mode: "boolean" }).default(false),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
+  updatedAt: integer("updated_at").$defaultFn(() => Date.now()),
 });
 
 export const messageReactions = sqliteTable("message_reactions", {
@@ -54,7 +54,7 @@ export const messageReactions = sqliteTable("message_reactions", {
   messageId: text("message_id").notNull().references(() => messages.id),
   userId: text("user_id").notNull().references(() => users.id),
   emoji: text("emoji").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
 });
 
 export const attachments = sqliteTable("attachments", {
@@ -64,21 +64,21 @@ export const attachments = sqliteTable("attachments", {
   type: text("type").notNull(),
   name: text("name").notNull(),
   size: integer("size").default(0),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
 });
 
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull().references(() => users.id),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  expiresAt: integer("expires_at").notNull(),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
 });
 
 export const contacts = sqliteTable("contacts", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull().references(() => users.id),
   contactId: text("contact_id").notNull().references(() => users.id),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
 });
 
 export const notifications = sqliteTable("notifications", {
@@ -89,5 +89,5 @@ export const notifications = sqliteTable("notifications", {
   body: text("body").notNull(),
   data: text("data"),
   isRead: integer("is_read", { mode: "boolean" }).default(false),
-  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at").$defaultFn(() => Date.now()),
 });
